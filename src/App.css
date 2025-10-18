@@ -1,0 +1,65 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0B0C10;
+  color: #C0C0C0;
+  font-family: 'Orbitron', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Common button styles */
+.btn-primary {
+  background: linear-gradient(45deg, #0033FF, #C70039);
+  border: none;
+  padding: 12px 30px;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(0, 51, 255, 0.5);
+}
+
+/* Form styles */
+.form-container {
+  background: rgba(11, 12, 16, 0.8);
+  border: 1px solid #0033FF;
+  padding: 30px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.form-input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #0033FF;
+  color: #C0C0C0;
+  padding: 12px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  text-transform: uppercase;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.form-input::placeholder {
+  color: #666;
+  text-transform: none;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #C0C0C0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

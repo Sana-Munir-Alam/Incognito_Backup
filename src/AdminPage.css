@@ -1,0 +1,159 @@
+.admin-page {
+  min-height: 100vh;
+  background: #0B0C10;
+  color: #C0C0C0;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  border-bottom: 1px solid #0033FF;
+}
+
+.admin-logo span {
+  font-size: 24px;
+  font-weight: bold;
+  color: #C0C0C0;
+  text-shadow: 0 0 10px rgba(0, 51, 255, 0.5);
+  letter-spacing: 3px;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 2px solid #C70039;
+  color: #C0C0C0;
+  padding: 10px 20px;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.logout-btn:hover {
+  background: #C70039;
+  box-shadow: 0 0 20px rgba(199, 0, 57, 0.5);
+}
+
+.admin-main {
+  padding: 40px;
+}
+
+.admin-controls {
+  display: flex;
+  justify-content: center;
+}
+
+.control-card {
+  background: rgba(11, 12, 16, 0.8);
+  border: 1px solid #0033FF;
+  padding: 30px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  min-width: 300px;
+}
+
+.control-card h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #C0C0C0;
+  text-shadow: 0 0 10px rgba(0, 51, 255, 0.5);
+  letter-spacing: 2px;
+}
+
+.control-btn {
+  background: linear-gradient(45deg, #0033FF, #C70039);
+  border: none;
+  padding: 15px;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.control-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(0, 51, 255, 0.5);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #0B0C10;
+  border: 2px solid #0033FF;
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #0033FF;
+  padding-bottom: 10px;
+}
+
+.modal-header h3 {
+  color: #C0C0C0;
+  text-shadow: 0 0 10px rgba(0, 51, 255, 0.5);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #C0C0C0;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+}
+
+.close-btn:hover {
+  color: #C70039;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #C0C0C0;
+  color: #C0C0C0;
+  padding: 12px 20px;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-secondary:hover {
+  background: rgba(192, 192, 192, 0.1);
+}
