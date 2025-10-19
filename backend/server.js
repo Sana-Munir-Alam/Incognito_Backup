@@ -44,6 +44,24 @@ const teamSchema = new mongoose.Schema({
 
 const Team = mongoose.model('Team', teamSchema);
 
+// Message Schema
+const messageSchema = new mongoose.Schema({
+  sender: { type: String, required: true },
+  message: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+});
+
+const Message = mongoose.model('Message', messageSchema);
+
+// User message tracking schema
+const userMessageTrackingSchema = new mongoose.Schema({
+  teamName: { type: String, required: true, unique: true },
+  lastSeenMessageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' },
+  lastSeenTimestamp: { type: Date, default: Date.now }
+});
+
+const UserMessageTracking = mongoose.model('UserMessageTracking', userMessageTrackingSchema);
+
 // Authentication Routes
 app.post('/api/auth/login', async (req, res) => {
   try {
@@ -533,4 +551,123 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// Admin send message route
+app.post('/api/admin/send-message', async (req, res) => {
+  try {
+    const { sender, message, timestamp } = req.body;
+
+    // Create new message
+    const newMessage = new Message({
+      sender: sender.toUpperCase(),
+      message: message,
+      timestamp: timestamp || new Date()
+    });
+
+    await newMessage.save();
+
+    res.json({ 
+      success: true,
+      message: 'Message sent to all teams successfully'
+    });
+
+  } catch (error) {
+    console.error('Send message error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error' 
+    });
+  }
+});
+
+// Updated get story messages route - now includes hasNewMessages
+app.get('/api/user/story-messages', async (req, res) => {
+  try {
+    const teamName = req.query.teamName; // Get team name from query params
+    
+    if (!teamName) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Team name is required' 
+      });
+    }
+
+    // Get all messages, sorted by timestamp (newest first)
+    const messages = await Message.find()
+      .sort({ timestamp: -1 })
+      .limit(50);
+
+    // Get or create user message tracking
+    let userTracking = await UserMessageTracking.findOne({ teamName: teamName.toUpperCase() });
+    
+    if (!userTracking) {
+      userTracking = new UserMessageTracking({
+        teamName: teamName.toUpperCase(),
+        lastSeenTimestamp: new Date(0) // Very old date to show all as new
+      });
+      await userTracking.save();
+    }
+
+    // Find the newest message
+    const newestMessage = messages.length > 0 ? messages[0] : null;
+    
+    // Check if user has new messages
+    const hasNewMessages = newestMessage && 
+      new Date(newestMessage.timestamp) > new Date(userTracking.lastSeenTimestamp);
+
+    res.json({
+      success: true,
+      messages: messages.map(msg => ({
+        _id: msg._id,
+        sender: msg.sender,
+        message: msg.message,
+        timestamp: msg.timestamp
+      })),
+      hasNewMessages: hasNewMessages
+    });
+
+  } catch (error) {
+    console.error('Get story messages error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error' 
+    });
+  }
+});
+
+// Update user's last seen timestamp
+app.post('/api/user/mark-messages-seen', async (req, res) => {
+  try {
+    const { teamName } = req.body;
+    
+    if (!teamName) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Team name is required' 
+      });
+    }
+
+    // Update user's last seen timestamp to now
+    await UserMessageTracking.findOneAndUpdate(
+      { teamName: teamName.toUpperCase() },
+      { 
+        lastSeenTimestamp: new Date(),
+        teamName: teamName.toUpperCase() 
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Messages marked as seen'
+    });
+
+  } catch (error) {
+    console.error('Mark messages seen error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error' 
+    });
+  }
 });
