@@ -17,7 +17,8 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden;
+    /* Hiding overflow to allow for scrollin */
+    /* overflow: hidden; */
     background-color: var(--color-black);
     /* Use Orbitron for the robotic, Interstellar aesthetic */
     font-family: 'Orbitron', sans-serif; 
