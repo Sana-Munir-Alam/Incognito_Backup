@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './UserDashboard.css';
 
 const UserDashboard = ({ user, onLogout }) => {
@@ -18,7 +18,11 @@ const UserDashboard = ({ user, onLogout }) => {
   const [showClueModal, setShowClueModal] = useState(false);
   const [clueText, setClueText] = useState('');
 
-  // Puzzle riddles only (no answers - answers are stored securely on backend)
+  // Use ref to track the last message count we've seen
+  const lastMessageCountRef = useRef(0);
+  const hasUserViewedRef = useRef(true);
+
+  // Puzzle riddles only
   const puzzleRiddles = {
     GOOD: {
       sp1: "IN THE REALM OF LIGHT, WHERE TRUTH RESIDES,\nA NUMBER HIDDEN IN PLAIN SIGHT.\nCOUNT THE GUARDIANS, MULTIPLY BY NINE,\nTHE CODE YOU SEEK IN SHADOWS SHINE.\n\nANSWER FORMAT: SP1-XXXXXX",
@@ -54,13 +58,8 @@ const UserDashboard = ({ user, onLogout }) => {
         const data = await response.json();
         
         if (response.ok && data.success) {
-          // Update suspects submitted status from the new field
           setSuspectsSubmitted(data.suspectsSubmitted);
-          
-          // Update special puzzles status
           setSpecialPuzzles(data.specialPuzzles);
-          
-          console.log('User status loaded:', data);
         }
       } catch (error) {
         console.error('Error fetching user status:', error);
@@ -70,15 +69,68 @@ const UserDashboard = ({ user, onLogout }) => {
     fetchUserStatus();
   }, [user.team]);
 
-  // Simulate receiving story messages (will be replaced with WebSocket)
+  // Fetch story messages
+  const fetchStoryMessages = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/user/story-messages?teamName=${user.team}`);
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setStoryMessages(data.messages);
+        
+        // Set hasNewStory based on backend response
+        // Only show red dot if there are new messages AND user is not on story tab
+        if (data.hasNewMessages && activeSection !== 'story') {
+          setHasNewStory(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching story messages:', error);
+    }
+  };
+
+  // Mark messages as seen on backend
+  const markMessagesAsSeen = async () => {
+    try {
+      await fetch('http://localhost:5000/api/user/mark-messages-seen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teamName: user.team
+        })
+      });
+    } catch (error) {
+      console.error('Error marking messages as seen:', error);
+    }
+  };
+
+  // Load initial messages and set up polling
   useEffect(() => {
-    // Initial story messages
-    setStoryMessages([
-      "THE MULTIVERSE PURSUIT BEGINS. CHOOSE YOUR PATH WISELY.",
-      "TIME IS OF THE ESSENCE. EVERY DECISION MATTERS.",
-      "TRUST NO ONE, QUESTION EVERYTHING."
-    ]);
-  }, []);
+    fetchStoryMessages();
+    
+    // Poll for new messages every 5 seconds
+    const messageInterval = setInterval(fetchStoryMessages, 5000);
+    
+    return () => clearInterval(messageInterval);
+  }, [activeSection, user.team]);
+
+  // Reset red dot when user clicks on Story tab
+  const handleStoryTabClick = async () => {
+    setActiveSection('story');
+    setHasNewStory(false);
+    
+    // Mark messages as seen on backend
+    await markMessagesAsSeen();
+  };
+
+  // Set hasUserViewed to false when new messages arrive and user is not on story tab
+  useEffect(() => {
+    if (storyMessages.length > 0 && activeSection !== 'story') {
+      hasUserViewedRef.current = false;
+    }
+  }, [storyMessages, activeSection]);
 
   const handlePuzzleClick = (puzzleId) => {
     if (specialPuzzles[puzzleId].active && !specialPuzzles[puzzleId].solved) {
@@ -198,7 +250,7 @@ const UserDashboard = ({ user, onLogout }) => {
     setSuspects(newSuspects);
   };
 
-  // Fetch puzzle status from backend (for real-time updates)
+  // Fetch puzzle status from backend
   useEffect(() => {
     const checkPuzzleStatus = async () => {
       try {
@@ -271,10 +323,7 @@ const UserDashboard = ({ user, onLogout }) => {
           </button>
           <button 
             className={`tab-btn ${activeSection === 'story' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveSection('story');
-              setHasNewStory(false);
-            }}
+            onClick={handleStoryTabClick}
           >
             STORY {hasNewStory && <span className="notification-dot"></span>}
           </button>
@@ -334,11 +383,17 @@ const UserDashboard = ({ user, onLogout }) => {
             <div className="story-section">
               <h4>MISSION BRIEFING</h4>
               <div className="story-messages">
-                {storyMessages.map((message, index) => (
-                  <div key={index} className="story-message">
-                    {message}
-                  </div>
-                ))}
+                {storyMessages.length > 0 ? (
+                  storyMessages.map((msg, index) => (
+                    <div key={index} className="story-message-card">
+                      <div className="message-sender">{msg.sender}</div>
+                      <div className="message-divider"></div>
+                      <div className="message-content">{msg.message}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-messages">NO MESSAGES RECEIVED YET</div>
+                )}
               </div>
             </div>
           )}
