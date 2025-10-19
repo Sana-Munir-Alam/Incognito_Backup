@@ -1,3 +1,8 @@
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
 .user-dashboard {
   min-height: 100vh;
   width: 100vw;
@@ -151,7 +156,7 @@
   overflow: hidden;
 }
 
-.rat-theme-logout::before , .bad-theme-logout::before, .good-theme-logout::before{
+.rat-theme-logout::before, .bad-theme-logout::before, .good-theme-logout::before {
   content: '';
   position: absolute;
   top: 0;
@@ -171,16 +176,440 @@
   transform: translateY(-2px);
 }
 
-/* ADD THESE TO FIX COMMON ISSUES */
-body, html {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
+/* Puzzle Buttons */
+.puzzle-buttons-container {
+  margin-bottom: 40px;
+  text-align: center;
 }
 
-#root {
+.puzzle-buttons-container h3 {
+  color: #C0C0C0;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(0, 51, 255, 0.5);
+  letter-spacing: 2px;
+}
+
+.puzzle-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.puzzle-btn {
+  padding: 15px 25px;
+  border: none;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 180px;
+}
+
+.puzzle-btn.inactive {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+  border: 1px solid #555;
+}
+
+.puzzle-btn.active {
+  background: linear-gradient(45deg, #0033FF, #C70039);
+  color: white;
+  border: 1px solid transparent;
+}
+
+.puzzle-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(0, 51, 255, 0.5);
+}
+
+.puzzle-btn.solved {
+  background: linear-gradient(45deg, #00C853, #009624);
+  color: white;
+  cursor: default;
+}
+
+/* Tabs */
+.dashboard-tabs {
+  display: flex;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #0033FF;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 15px 30px;
+  color: #C0C0C0;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 3px solid transparent;
+  position: relative;
+}
+
+.tab-btn.active {
+  color: #0033FF;
+  border-bottom-color: #0033FF;
+}
+
+.tab-btn:hover:not(.active) {
+  background: rgba(0, 51, 255, 0.1);
+}
+
+.notification-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #C70039;
+  border-radius: 50%;
+  margin-left: 5px;
+}
+
+/* Content Sections */
+.dashboard-content {
+  min-height: 400px;
+}
+
+.slot1-section {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.submission-card {
+  flex: 1;
+  min-width: 300px;
+  background: rgba(11, 12, 16, 0.8);
+  border: 1px solid #0033FF;
+  padding: 25px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.submission-card h4 {
+  color: #C0C0C0;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(0, 51, 255, 0.5);
+  letter-spacing: 2px;
+}
+
+.story-section {
+  background: rgba(11, 12, 16, 0.8);
+  border: 1px solid #0033FF;
+  padding: 25px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.story-section h4 {
+  color: #C0C0C0;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(0, 51, 255, 0.5);
+  letter-spacing: 2px;
+}
+
+.story-messages {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.story-message {
+  background: rgba(0, 51, 255, 0.1);
+  border-left: 3px solid #0033FF;
+  padding: 15px;
+  margin-bottom: 10px;
+  color: #C0C0C0;
+  line-height: 1.5;
+}
+
+.submitted-text {
+  text-align: center;
+  color: #00C853;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(0, 200, 83, 0.5);
+}
+
+/* Puzzle Modal */
+.puzzle-modal {
+  max-width: 600px;
+}
+
+.riddle-text {
+  color: #C0C0C0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-family: 'Orbitron', sans-serif;
+  text-align: center;
+}
+
+.clue-modal {
+  max-width: 500px;
+  text-align: center;
+}
+
+.clue-content p {
+  color: #C0C0C0;
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* ===== CLICK FEEDBACK FOR ALL BUTTONS ===== */
+
+/* Primary buttons (gradient buttons) */
+.btn-primary {
+  transition: all 0.1s ease;
+  position: relative;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  filter: brightness(0.8);
+  box-shadow: 0 0 10px rgba(0, 51, 255, 0.3) !important;
+}
+
+/* Logout buttons */
+.logout-btn:active {
+  transform: scale(0.95);
+  filter: brightness(0.7);
+}
+
+/* Good theme logout active state */
+.good-theme-logout:active {
+  background: #002299 !important;
+  box-shadow: 0 0 15px rgba(0, 51, 255, 0.7) !important;
+}
+
+/* Bad theme logout active state */
+.bad-theme-logout:active {
+  background: #99002b !important;
+  box-shadow: 0 0 15px rgba(199, 0, 57, 0.7) !important;
+}
+
+/* Rat theme logout active state */
+.rat-theme-logout:active {
+  background: linear-gradient(90deg, #002299, #99002b) !important;
+  transform: scale(0.95);
+  box-shadow: 0 0 15px rgba(0, 51, 255, 0.5), 0 0 15px rgba(199, 0, 57, 0.5) !important;
+}
+
+/* Puzzle buttons active states */
+.puzzle-btn.active:active {
+  transform: scale(0.95);
+  filter: brightness(0.8);
+  box-shadow: 0 0 15px rgba(0, 51, 255, 0.7) !important;
+}
+
+.puzzle-btn.solved:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+  box-shadow: 0 0 15px rgba(0, 200, 83, 0.7) !important;
+}
+
+/* Tab buttons */
+.tab-btn:active {
+  background: rgba(0, 51, 255, 0.2) !important;
+  color: #0033FF !important;
+}
+
+.tab-btn.active:active {
+  background: rgba(0, 51, 255, 0.3) !important;
+}
+
+/* Modal close button */
+.close-btn:active {
+  background: rgba(199, 0, 57, 0.2) !important;
+  color: #C70039 !important;
+  transform: scale(0.9);
+}
+
+/* Form input focus states for better UX */
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 51, 255, 0.5);
+  border-color: #0033FF;
+}
+
+/* Specific active states for different button types */
+.control-btn:active {
+  transform: scale(0.95);
+  filter: brightness(0.8);
+}
+
+.btn-secondary:active {
+  background: rgba(192, 192, 192, 0.3) !important;
+  transform: scale(0.95);
+}
+
+/* Back button in login */
+.back-btn:active {
+  background: rgba(0, 51, 255, 0.3) !important;
+  transform: scale(0.95);
+}
+
+/* Login toggle buttons */
+.toggle-btn:active {
+  background: rgba(0, 51, 255, 0.4) !important;
+  transform: scale(0.98);
+}
+
+.toggle-btn.active:active {
+  background: #002299 !important;
+}
+
+/* Form styles */
+.form-container {
+  background: rgba(11, 12, 16, 0.8);
+  border: 1px solid #0033FF;
+  padding: 30px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.form-input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #0033FF;
+  color: #C0C0C0;
+  padding: 12px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  text-transform: uppercase;
   width: 100%;
-  min-height: 100vh;
+  margin-bottom: 15px;
+}
+
+.form-input::placeholder {
+  color: #666;
+  text-transform: none;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #C0C0C0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #0B0C10;
+  border: 2px solid #0033FF;
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #0033FF;
+  padding-bottom: 10px;
+}
+
+.modal-header h3 {
+  color: #C0C0C0;
+  text-shadow: 0 0 10px rgba(0, 51, 255, 0.5);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #C0C0C0;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #C70039;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #C0C0C0;
+  color: #C0C0C0;
+  padding: 12px 20px;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(192, 192, 192, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .puzzle-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .slot1-section {
+    flex-direction: column;
+  }
+  
+  .welcome-message h2 {
+    font-size: 24px;
+  }
+  
+  .welcome-message p {
+    font-size: 16px;
+  }
+  
+  .dashboard-tabs {
+    flex-direction: column;
+  }
+  
+  .tab-btn {
+    width: 100%;
+  }
 }
