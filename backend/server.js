@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection - REMOVE DUPLICATE CONNECTION
+// MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/incognito', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -37,7 +37,7 @@ const teamSchema = new mongoose.Schema({
   SpecialPuzzle2: { type: Boolean, default: false },
   SpecialPuzzle3: { type: Boolean, default: false },
   SuspectMatchQty: { type: Number, default: 0 },
-  SuspectSubmittedStatus: { type: Boolean, default: false }, // ADD THIS NEW FIELD
+  SuspectSubmittedStatus: { type: Boolean, default: false },
   TotalPoints: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
@@ -243,7 +243,7 @@ app.get('/api/leaderboard', async (req, res) => {
 //   }
 // });
 
-// FOR DEBUSSINg after work done choose the above commented version
+// FOR DEBUSSING after work done choose the above commented version
 app.post('/api/user/submit-code', async (req, res) => {
   try {
     const { teamName, code } = req.body;
@@ -256,7 +256,6 @@ app.post('/api/user/submit-code', async (req, res) => {
     }
 
     console.log('🔍 Team found:', team.teamName);
-    console.log('🔍 Current GP1 status before update:', team.GeneralPuzzle1Status);
 
     // Define general puzzle codes on backend (SECURE)
     const generalPuzzles = {
@@ -286,6 +285,20 @@ app.post('/api/user/submit-code', async (req, res) => {
     console.log('🔍 Puzzle field to update:', puzzleField);
     console.log('🔍 Current value of that field:', team[puzzleField]);
 
+    // Fixed clues for each puzzle
+    const puzzleClues = {
+      'GP1': "CLUE 1: LOOK TO THE STARS FOR GUIDANCE, BUT REMEMBER THE EARTH BENEATH YOUR FEET.",
+      'GP2': "CLUE 2: TIME FLOWS LIKE A RIVER, BUT SOME MOMENTS ARE FROZEN FOREVER.", 
+      'GP3': "CLUE 3: IN SILENCE, TRUTH SPEAKS THE LOUDEST.",
+      'GP4': "CLUE 4: THE KEY TO UNDERSTANDING LIES IN WHAT IS NOT SAID.",
+      'GP5': "CLUE 5: PATIENCE REWARDS THOSE WHO SEE BEYOND THE OBVIOUS.",
+      'GP6': "CLUE 6: CONNECTIONS HIDDEN IN PLAIN SIGHT REVEAL THE PATH FORWARD.",
+      'GP7': "CLUE 7: THE PAST HOLDS ANSWERS, BUT THE FUTURE HOLDS POSSIBILITIES.",
+      'GP8': "CLUE 8: TRUST THE PATTERN, BUT QUESTION THE SOURCE."
+    };
+
+    const specificClue = puzzleClues[puzzleCode] || "CLUE: CONTINUE YOUR INVESTIGATION. THE TRUTH AWAITS.";
+
     if (!team[puzzleField]) {
       team[puzzleField] = true;
       console.log('🔍 Field updated to true');
@@ -309,25 +322,10 @@ app.post('/api/user/submit-code', async (req, res) => {
       await team.save();
       console.log('✅ Team saved to database');
 
-      // Verify the save worked by fetching the team again
-      const updatedTeam = await Team.findOne({ teamName: teamName.toUpperCase() });
-      console.log('🔍 Verified GP1 status after save:', updatedTeam.GeneralPuzzle1Status);
-
-      // Random clue texts
-      const clues = [
-        "CLUE: THE ANSWER LIES IN THE PATTERNS OF THE PAST.",
-        "CLUE: TRUST YOUR INSTINCTS, THEY RARELY LIE.",
-        "CLUE: SOMETIMES THE TRUTH HIDES IN PLAIN SIGHT.",
-        "CLUE: EVERY PUZZLE SOLVED BRINGS YOU CLOSER TO THE END.",
-        "CLUE: THE MULTIVERSE WHISPERS ITS SECRETS TO THOSE WHO LISTEN."
-      ];
-      
-      const randomClue = clues[Math.floor(Math.random() * clues.length)];
-
       res.json({ 
         success: true,
         message: 'Code accepted! 10 points awarded.',
-        clue: randomClue,
+        clue: specificClue,
         puzzleSolved: puzzleCode
       });
     } else {
@@ -335,6 +333,7 @@ app.post('/api/user/submit-code', async (req, res) => {
       res.json({ 
         success: true,
         message: 'Puzzle already solved. No additional points.',
+        clue: specificClue,
         puzzleSolved: puzzleCode
       });
     }
@@ -379,8 +378,7 @@ app.post('/api/user/submit-special-puzzle', async (req, res) => {
     };
 
     // Verify the answer against backend-stored correct answers
-    const isCorrect = correctAnswers[team.alliance] && 
-                     correctAnswers[team.alliance][puzzleId] === answer.toUpperCase();
+    const isCorrect = correctAnswers[team.alliance] && correctAnswers[team.alliance][puzzleId] === answer.toUpperCase();
 
     if (!isCorrect) {
       return res.status(400).json({ 
@@ -668,6 +666,81 @@ app.post('/api/user/mark-messages-seen', async (req, res) => {
     res.status(500).json({ 
       success: false,
       message: 'Server error' 
+    });
+  }
+});
+
+// Admin reset game route
+app.post('/api/admin/reset-game', async (req, res) => {
+  try {
+    const { confirmation } = req.body;
+
+    // Verify confirmation text
+    if (confirmation !== 'CONFIRM INCOGNITO CLEAR') {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid confirmation text' 
+      });
+    }
+
+    console.log('🔄 Starting game reset...');
+
+    // Reset all teams to default state
+    const resetResult = await Team.updateMany(
+      {}, // All documents
+      {
+        $set: {
+          // Keep these fields unchanged:
+          // teamName, teamLeaderName, password, alliance, subAlliance, createdAt
+        
+          // Reset all puzzle status to false
+          GeneralPuzzle1Status: false,
+          GeneralPuzzle2Status: false,
+          GeneralPuzzle3Status: false,
+          GeneralPuzzle4Status: false,
+          GeneralPuzzle5Status: false,
+          GeneralPuzzle6Status: false,
+          GeneralPuzzle7Status: false,
+          GeneralPuzzle8Status: false,
+          SpecialPuzzle1: false,
+          SpecialPuzzle2: false,
+          SpecialPuzzle3: false,
+          
+          // Reset suspect data
+          SuspectMatchQty: 0,
+          SuspectSubmittedStatus: false,
+          
+          // Reset points
+          TotalPoints: 0
+        }
+      }
+    );
+
+    console.log(`✅ Teams reset: ${resetResult.modifiedCount} teams updated`);
+
+    // Delete all messages
+    const messageDeleteResult = await Message.deleteMany({});
+    console.log(`✅ Messages deleted: ${messageDeleteResult.deletedCount} messages removed`);
+
+    // Delete all user message tracking
+    const trackingDeleteResult = await UserMessageTracking.deleteMany({});
+    console.log(`✅ Message tracking cleared: ${trackingDeleteResult.deletedCount} records removed`);
+
+    res.json({ 
+      success: true,
+      message: `Game reset successfully! ${resetResult.modifiedCount} teams reset, ${messageDeleteResult.deletedCount} messages deleted.`,
+      stats: {
+        teamsReset: resetResult.modifiedCount,
+        messagesDeleted: messageDeleteResult.deletedCount,
+        trackingCleared: trackingDeleteResult.deletedCount
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Reset game error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error during reset operation' 
     });
   }
 });
